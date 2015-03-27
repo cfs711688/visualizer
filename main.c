@@ -201,6 +201,10 @@ void serial_readwrite_task(void *pvParameters)
 	}
 }
 
+void test_task(void *pvParameters){
+	while(1);
+}
+
 int main()
 {
 	logfile = open("log", 4);
@@ -219,6 +223,18 @@ int main()
 	serial_str_queue = xQueueCreate(10, sizeof(serial_str_msg));
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_ch_msg));
+
+	/* Create a testing task A. */
+	xTaskCreate(test_task,
+	            (signed portCHAR *) "testA",
+	            512 /* stack size */, NULL,
+	            tskIDLE_PRIORITY + 10, NULL);
+
+	/* Create a testing task B. */
+	xTaskCreate(test_task,
+	            (signed portCHAR *) "testB",
+	            512 /* stack size */, NULL,
+	            tskIDLE_PRIORITY + 5, NULL);
 
 	/* Create a task to flash the LED. */
 	xTaskCreate(led_flash_task,
